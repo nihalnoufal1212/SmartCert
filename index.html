@@ -79,15 +79,43 @@ function parseCSV(text){
  return rows.map(r=>{const o={};headers.forEach((h,i)=>o[h]=(r[i]||'').trim());return {name:o.name||o.fullname||o['full name']||'',email:o.email||'',event:o.event||'',award:o.award||''}})
 }
 let previewIndex=0;
-function rowIssues(r, idx){
- const issues=[];
- if(!r.name.trim()) issues.push('Missing name');
- const nameKey=r.name.trim().toLowerCase();
- if(nameKey && records.findIndex(x=>x.name.trim().toLowerCase()===nameKey)!==idx) issues.push('Duplicate name');
- const emailKey=(r.email||'').trim().toLowerCase();
- if(emailKey && records.findIndex(x=>(x.email||'').trim().toLowerCase()===emailKey)!==idx) issues.push('Duplicate email');
- return issues;
+
+function rowIssues(r, idx) {
+  const issues = [];
+
+  const name = (r.name || '').trim();
+  const email = (r.email || '').trim();
+  const nameKey = name.toLowerCase();
+  const emailKey = email.toLowerCase();
+
+  if (!name) {
+    issues.push('Missing name');
+  }
+
+  if (
+    nameKey &&
+    records.findIndex(x => (x.name || '').trim().toLowerCase() === nameKey) !== idx
+  ) {
+    issues.push('Duplicate name');
+  }
+
+  if (email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(email)) {
+      issues.push('Invalid email');
+    }
+
+    if (
+      records.findIndex(x => (x.email || '').trim().toLowerCase() === emailKey) !== idx
+    ) {
+      issues.push('Duplicate email');
+    }
+  }
+
+  return issues;
 }
+
 function render(){
  const good=records.filter((r,i)=>rowIssues(r,i).length===0);
  const issueCount=records.length-good.length;
