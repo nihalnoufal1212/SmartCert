@@ -1,0 +1,950 @@
+<!doctype html>
+
+
+
+<html lang="en">
+
+
+
+<head>
+
+
+
+<meta charset="utf-8">
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+<title>SmartCert | Certificate Studio</title>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+
+<style>
+
+
+
+:root{--bg:#0b1020;--panel:#141d34;--panel2:#1c2947;--text:#f6f8ff;--muted:#aab7d2;--teal:#30d5be;--cyan:#64daff;--line:#2b3a5d;--gold:#ffc65c}
+
+
+
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0%,#1c3152 0,transparent 32%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+
+
+
+header{padding:25px max(22px,calc((100vw - 1180px)/2));border-bottom:1px solid #263452;display:flex;justify-content:space-between;align-items:center;gap:20px}
+
+
+
+.brand{font-weight:900;letter-spacing:.08em;color:var(--teal);font-size:15px}.tag{color:var(--muted);font-size:12px;border:1px solid var(--line);padding:7px 11px;border-radius:30px}
+
+
+
+main{max-width:1180px;margin:34px auto;padding:0 22px}.hero{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:26px}.eyebrow{color:var(--teal);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}h1{font-size:clamp(30px,4vw,47px);line-height:1.04;margin:10px 0 12px;letter-spacing:-.04em}.sub{color:var(--muted);max-width:660px;line-height:1.6;margin:0}.status{background:#122e37;color:#7ff2d9;border:1px solid #245a60;padding:11px 14px;border-radius:12px;font-size:12px;white-space:nowrap}
+
+
+
+.grid{display:grid;grid-template-columns:minmax(300px,.88fr) minmax(400px,1.12fr);gap:20px}.panel{background:linear-gradient(145deg,rgba(25,37,65,.97),rgba(17,26,47,.97));border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 16px 50px #0002}.panel h2{font-size:16px;margin:0 0 5px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 19px}
+
+
+
+label{display:block;color:#dce5f7;font-size:12px;font-weight:700;margin:16px 0 8px}input[type=file],input[type=text],select{width:100%;background:#0c1428;border:1px solid #344566;color:var(--text);padding:12px;border-radius:10px;font:inherit;font-size:13px}input[type=file]{padding:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{border:0;border-radius:10px;padding:12px 15px;font-weight:800;font-size:12px;cursor:pointer;transition:.15s}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.primary{background:var(--teal);color:#071923}.secondary{background:#263858;color:var(--text);border:1px solid #3a4e72}.gold{background:var(--gold);color:#211a08}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}.tiny{font-size:11px;color:var(--muted);line-height:1.5;margin-top:13px}.metricrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.metric{background:#0d172c;border:1px solid #263654;border-radius:12px;padding:12px}.metric strong{display:block;font-size:22px;color:var(--teal)}.metric span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+
+
+.previewwrap{background:#0a1121;border:1px solid #2b3a5b;border-radius:14px;padding:12px}.cert{position:relative;aspect-ratio:1.414/1;background:#f8f7f0;color:#17233b;display:flex;align-items:center;justify-content:center;text-align:center;padding:7%;overflow:hidden}.cert:before{content:"";position:absolute;inset:10px;border:2px solid var(--teal);pointer-events:none}.cert:after{content:"";position:absolute;inset:17px;border:1px solid #b8c9c5;pointer-events:none}.cert.goldtheme:before{border-color:#c29a42}.cert.bluetheme:before{border-color:#3b72b8}.certinner{position:relative;z-index:1;width:100%}.certbrand{font-size:clamp(8px,1.2vw,13px);letter-spacing:.22em;font-weight:800;color:#2d877d}.cert h3{font-family:Georgia,serif;font-size:clamp(20px,3.5vw,38px);margin:7% 0 2%;font-weight:500;letter-spacing:.04em}.cert .of{font-family:Georgia,serif;font-style:italic;color:#6d7890;font-size:clamp(9px,1.3vw,14px)}.cert .person{font-family:Georgia,serif;font-size:clamp(15px,2.5vw,26px);font-weight:bold;margin:4% 0 2%;border-bottom:1px solid #bdc9c8;padding-bottom:2%}.cert .desc{font-size:clamp(8px,1.1vw,12px);line-height:1.5;color:#45516a}.cert .foot{display:flex;justify-content:space-between;font-size:clamp(7px,.9vw,10px);margin-top:8%;color:#536078}.cert .seal{margin:3% auto 0;width:35px;height:35px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;color:#238c7f;font-weight:900;font-size:16px}
+
+
+
+.tablewrap{overflow:auto;margin-top:16px;border:1px solid #2b3a5b;border-radius:12px}table{border-collapse:collapse;width:100%;font-size:12px;min-width:440px}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #263452}th{background:#101a30;color:#cbd7ee;font-size:10px;text-transform:uppercase;letter-spacing:.08em}td{color:#e5ebf8}tr:last-child td{border-bottom:0}.empty{text-align:center;padding:24px;color:var(--muted);font-size:12px}.notice{margin-top:14px;border:1px solid #344566;background:#111d34;border-radius:10px;padding:11px 12px;font-size:11px;line-height:1.5;color:var(--muted)}.notice strong{color:var(--gold)}footer{max-width:1180px;margin:24px auto 35px;padding:0 22px;color:#7384a5;font-size:11px;display:flex;justify-content:space-between;gap:12px}
+
+
+
+
+
+
+
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+
+
+.toolbar input{flex:1;min-width:160px}
+
+
+
+.pill{display:inline-block;border-radius:30px;padding:4px 8px;font-size:10px;font-weight:800;background:#163a35;color:#83f0d4}
+
+
+
+.pill.warn{background:#45351b;color:#ffd27a}.pill.bad{background:#48252f;color:#ff9ca7}
+
+
+
+@media(max-width:850px){.grid{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.status{white-space:normal}.cert h3{font-size:clamp(22px,5vw,36px)}}
+
+
+
+
+/* SmartCert premium dashboard redesign */
+:root{--bg:#080d19;--panel:#101a2d;--panel2:#16243b;--text:#eef4ff;--muted:#91a2bd;--teal:#35c7f4;--cyan:#64daff;--line:#263954;--gold:#f3c76b;--blue:#3478f6}
+body{background:radial-gradient(ellipse at 72% -10%,rgba(38,94,174,.19),transparent 42%),#080d19;color:var(--text);padding-left:252px}
+header{position:sticky;top:0;z-index:10;padding:18px 30px;margin-left:0;background:rgba(8,13,25,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(92,123,170,.18);min-height:72px}
+.brand{color:#eaf5ff;letter-spacing:.06em}.brand:before{content:'✦';display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;margin-right:10px;border-radius:9px;background:linear-gradient(135deg,#1685ff,#34d4ed);color:white;font-size:16px;box-shadow:0 5px 18px #0877ff45}.tag{background:#0d2c2b;color:#7af0d6;border-color:#20524d}
+main{max-width:1500px;margin:0 auto;padding:30px 30px 24px}.hero{align-items:center;margin-bottom:24px}.eyebrow{color:#55d6f6}.hero h1{font-size:clamp(30px,3vw,42px);letter-spacing:-.045em;max-width:700px}.hero h1:after{content:'';display:block;width:92px;height:4px;margin-top:16px;border-radius:9px;background:linear-gradient(90deg,#2da7ff,#43dfd0)}.sub{max-width:700px;font-size:13px}.status{border-radius:999px;background:#0d292b;border-color:#1c5752;padding:10px 14px}
+.grid{grid-template-columns:minmax(330px,.9fr) minmax(440px,1.1fr);gap:18px;align-items:start}.panel{background:linear-gradient(155deg,rgba(17,29,49,.98),rgba(12,21,37,.98));border:1px solid #263953;border-radius:17px;padding:21px;box-shadow:0 16px 45px #0002}.panel h2{font-size:15px;letter-spacing:-.01em}.hint{font-size:12px}.panel label{color:#b9c9e2}input[type=file],input[type=text],select{background:#0a1323;border-color:#2a3e5c;border-radius:9px;color:#edf5ff}input:focus,select:focus{outline:2px solid #3686f755;border-color:#3686f7}.btn{border-radius:9px;padding:11px 14px}.primary{background:linear-gradient(100deg,#2588ff,#36c5ee);color:#031426;box-shadow:0 7px 20px #1689ff2b}.secondary{background:#172741;border-color:#2c4262}.gold{background:#f2c76a}.metric{background:#0b1526;border-color:#233750;border-radius:11px}.metric strong{color:#55d5f2}.metric span{letter-spacing:.06em}.previewwrap{background:#080f1d;border-color:#263954;padding:14px}.cert{box-shadow:0 12px 35px #0003}.tablewrap{border-color:#263954}.tablewrap th{background:#0b1526}th,td{border-bottom-color:#21314a}td{color:#dce7f8}.notice{background:#0c1729;border-color:#293d5a}.notice strong{color:#f2c76a}footer{max-width:1500px;padding:0 30px}
+.sc-sidebar{position:fixed;inset:0 auto 0 0;width:252px;z-index:20;display:flex;flex-direction:column;padding:22px 15px 16px;background:linear-gradient(180deg,#0b1425,#080e1b);border-right:1px solid #20314b}
+.sc-sidebrand{display:flex;align-items:center;gap:10px;padding:0 10px 25px;font-weight:900;letter-spacing:.09em;font-size:14px}.sc-logo{display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:linear-gradient(145deg,#197cff,#32d3ed);color:white;font-size:18px;box-shadow:0 7px 20px #1689ff3d}.sc-sidebrand small{display:block;color:#8094b2;font-size:9px;letter-spacing:.13em;margin-top:3px;font-weight:600}.sc-navlabel{padding:12px 12px 8px;color:#667d9f;font-size:9px;letter-spacing:.16em;font-weight:800;text-transform:uppercase}.sc-nav{display:grid;gap:5px}.sc-nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;color:#91a4c1;text-decoration:none;border:1px solid transparent;border-radius:10px;font-size:12px;font-weight:650;transition:.18s}.sc-nav a:hover{background:#14243a;color:#eaf4ff}.sc-nav a.active{background:linear-gradient(100deg,#123d70,#142d4a);border-color:#24588d;color:#f4f9ff;box-shadow:inset 3px 0 #38bdf8}.sc-nav .navicon{width:20px;text-align:center;font-size:15px}.sc-sidebottom{margin-top:auto}.sc-eventcard{padding:13px;margin:12px 2px 15px;background:#101e32;border:1px solid #233852;border-radius:12px}.sc-eventcard strong{font-size:11px;display:block}.sc-eventcard span{font-size:10px;color:#91a2bd;display:block;margin-top:5px;line-height:1.5}.sc-profile{display:flex;align-items:center;gap:10px;padding:13px 9px 0;border-top:1px solid #21314a}.sc-avatar{width:31px;height:31px;display:grid;place-items:center;background:#1c3c67;color:#dff5ff;border-radius:50%;font-size:12px;font-weight:800}.sc-profile strong{font-size:11px;display:block}.sc-profile span{font-size:10px;color:#8da0bb}
+/* Preserve functionality while giving the existing controls clearer hierarchy */
+#generate{font-size:13px;min-height:43px}#clear{min-height:43px}.actions{gap:8px}.toolbar input{background:#0a1323}.pill{background:#103b3a;color:#8bf0dc}.pill.warn{background:#49391e;color:#ffd57c}
+@media(max-width:1000px){body{padding-left:0}.sc-sidebar{position:relative;width:auto;height:auto;inset:auto;padding:12px 16px;display:block;border-right:0;border-bottom:1px solid #20314b}.sc-sidebrand{padding:0 5px 12px}.sc-navlabel,.sc-sidebottom{display:none}.sc-nav{display:flex;overflow-x:auto}.sc-nav a{white-space:nowrap;padding:10px}.sc-nav .navicon{display:none}header{padding:14px 20px;top:0}main{padding:24px 20px}.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.status{white-space:normal}.row{grid-template-columns:1fr}.metricrow{grid-template-columns:repeat(3,minmax(0,1fr))}.panel{padding:16px}main{padding:20px 14px}header{padding:13px 15px}.tag{font-size:10px}.sc-nav a{font-size:11px}}
+
+</style>
+
+
+
+</head>
+
+
+
+<body>
+
+
+
+<aside class="sc-sidebar" aria-label="Main navigation"><div class="sc-sidebrand"><span class="sc-logo">✦</span><div>SMARTCERT<small>CERTIFICATE AUTOMATION</small></div></div><div class="sc-navlabel">Workspace</div><nav class="sc-nav"><a href="#top" class="active"><span class="navicon">▦</span>Generate</a><a href="#participants"><span class="navicon">♙</span>Participants</a><a href="#certificate-preview"><span class="navicon">▧</span>Templates & Preview</a><a href="#history-note"><span class="navicon">◷</span>History</a><a href="#settings"><span class="navicon">⚙</span>Settings</a></nav><div class="sc-sidebottom"><div class="sc-eventcard"><strong>◉ &nbsp; Current event</strong><span id="sidebarEvent">Innovation & Technology Workshop</span><span>Local browser session · Prototype</span></div><div class="sc-profile"><div class="sc-avatar">SC</div><div><strong>SmartCert Workspace</strong><span>Prototype edition</span></div></div></div></aside>
+<header id="top"><div class="brand">SMARTCERT<span style="color:#f6f8ff"> / STUDIO</span></div><div class="tag">CERTIFICATE OPERATIONS · BETA</div></header>
+
+
+
+<main>
+
+
+
+<section class="hero"><div><div class="eyebrow">Certificate automation, simplified</div><h1>From participant list<br>to polished certificates.</h1><p class="sub">Upload a CSV, choose a visual theme, preview the result, and generate a multi-page PDF with one certificate per participant. Your data stays in this browser.</p></div><div class="status">● Prototype ready · CSV → PDF</div></section>
+
+
+
+<div class="grid">
+
+
+
+<section class="panel">
+
+
+
+<h2>01 / Configure your batch</h2><p class="hint">Start with the sample CSV or upload your own participant list.</p>
+
+
+
+<label for="csv">Participant CSV</label><input id="csv" type="file" accept=".csv,text/csv">
+
+
+
+<div class="actions"><button class="btn secondary" id="sampleBtn">Download sample CSV</button><button class="btn secondary" id="loadSample">Load demo data</button></div>
+
+
+
+<div class="row">
+
+
+
+<div><label for="manualName">Quick-add participant</label><input id="manualName" type="text" placeholder="Participant full name"></div>
+
+
+
+<div><label for="manualEmail">Email (optional)</label><input id="manualEmail" type="text" placeholder="name@example.com"></div>
+
+
+
+</div>
+
+
+
+<div class="actions"><button class="btn secondary" id="addParticipant">+ Add participant</button><button class="btn secondary" id="exportIssues">Export validation report</button></div>
+
+
+
+
+
+
+
+<div class="row"><div><label for="event">Event / programme</label><input id="event" type="text" value="Innovation & Technology Workshop"></div><div><label for="date">Issue date</label><input id="date" type="text"></div></div>
+
+
+
+<div class="row"><div><label for="award">Certificate type</label><select id="award"><option>Certificate of Participation</option><option>Certificate of Achievement</option><option>Certificate of Appreciation</option></select></div><div><label for="theme">Design theme</label><select id="theme"><option value="teal">Modern Teal</option><option value="gold">Classic Gold</option><option value="blue">Academic Blue</option></select></div></div>
+
+
+
+<label for="signatory">Authorised by (optional)</label><input id="signatory" type="text" value="Event Organising Committee">
+
+
+
+<div class="metricrow"><div class="metric"><strong id="count">0</strong><span>Participants</span></div><div class="metric"><strong id="valid">0</strong><span>Valid records</span></div><div class="metric"><strong id="issues">0</strong><span>Needs review</span></div></div>
+
+
+
+<div class="actions"><button class="btn primary" id="generate">Generate certificate PDF</button><button class="btn gold" id="clear">Reset</button></div>
+
+
+
+<p class="tiny">Expected CSV columns: <b>name,email</b>. Optional columns: <b>event,award</b>. Names are required; email is optional for this prototype.</p>
+
+
+
+<div class="notice"><strong>Prototype note:</strong> PDF generation uses a browser library loaded from a CDN, so internet access is needed when opening this page. Email delivery and online certificate verification are planned extensions, not implemented in this demo.</div>
+
+
+
+</section>
+
+
+
+<section class="panel">
+
+
+
+<h2>02 / Live certificate preview</h2><p class="hint">Preview updates when you select a theme or change the event details.</p>
+
+
+
+<div class="previewwrap"><div class="cert" id="cert"><div class="certinner"><div class="certbrand">SMARTCERT · DIGITAL RECOGNITION</div><h3 id="previewAward">CERTIFICATE</h3><div class="of">of participation</div><div class="person" id="previewName">Alex Morgan</div><div class="desc">This certificate is proudly presented in recognition of participation in<br><b id="previewEvent">Innovation & Technology Workshop</b></div><div class="seal">✓</div><div class="foot"><span id="previewDate">20 October 2026</span><span id="previewId">ID: SC-DEMO-001</span><span id="previewSign">Organising Committee</span></div></div></div></div>
+
+
+
+
+
+
+
+<div class="toolbar"><input id="searchRecords" type="text" placeholder="Search participant or email…"><span class="pill" id="batchStatus">No batch loaded</span></div>
+
+
+
+<div id="participants" class="tablewrap"><table><thead><tr><th>Participant</th><th>Email</th><th>Status</th></tr></thead><tbody id="tbody"><tr><td colspan="3" class="empty">Load demo data or upload a CSV to see records.</td></tr></tbody></table></div>
+
+
+
+<div class="actions"><button class="btn secondary" id="prevPerson">← Previous preview</button><button class="btn secondary" id="nextPerson">Next preview →</button></div>
+
+
+
+
+
+
+
+<div class="notice" id="message">Ready. Load the sample records to try the complete workflow.</div>
+
+
+
+</section>
+
+
+
+</div>
+
+
+
+</main>
+
+
+
+<div id="history-note" style="max-width:1500px;margin:0 auto;padding:0 30px;color:#7085a4;font-size:10px">History is session-only in this prototype; generated files are downloaded to your device.</div>
+<footer><span>SmartCert · Early-stage MVP concept</span><span>Privacy-friendly demo: processing happens locally in your browser.</span></footer>
+
+
+
+<script>
+
+
+
+const $=id=>document.getElementById(id);
+
+
+
+let records=[];
+
+
+
+const today=new Date();
+
+
+
+$('date').value=today.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+
+
+
+function parseCSV(text){
+
+
+
+ const rows=[]; let row=[], field='', quoted=false;
+
+
+
+ for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];
+
+
+
+  if(c==='"'&&quoted&&n==='"'){field+='"';i++}
+
+
+
+  else if(c==='"'){quoted=!quoted}
+
+
+
+  else if(c===','&&!quoted){row.push(field.trim());field=''}
+
+
+
+  else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&n==='\n')i++;row.push(field.trim());if(row.some(v=>v!==''))rows.push(row);row=[];field=''}
+
+
+
+  else field+=c;
+
+
+
+ }
+
+
+
+ if(field.length||row.length){row.push(field.trim());if(row.some(v=>v!==''))rows.push(row)}
+
+
+
+ if(rows.length<2)return [];
+
+
+
+ const headers=rows.shift().map(h=>h.toLowerCase().replace(/^\uFEFF/,'').trim());
+
+
+
+ return rows.map(r=>{const o={};headers.forEach((h,i)=>o[h]=(r[i]||'').trim());return {name:o.name||o.fullname||o['full name']||'',email:o.email||'',event:o.event||'',award:o.award||''}})
+
+
+
+}
+
+
+
+let previewIndex = 0;
+
+
+
+
+
+
+
+function makeQrDataUrl(text) {
+  return new Promise((resolve, reject) => {
+    if (typeof window.QRCode !== 'function') {
+      reject(new Error('QR code library did not load. Check your internet connection, then refresh the page.'));
+      return;
+    }
+    const holder = document.createElement('div');
+    holder.style.position = 'fixed'; holder.style.left = '-10000px'; holder.style.top = '0';
+    document.body.appendChild(holder);
+    try {
+      new window.QRCode(holder, { text, width: 160, height: 160, colorDark: '#000000', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M });
+      const canvas = holder.querySelector('canvas');
+      if (canvas) { const dataUrl = canvas.toDataURL('image/png'); holder.remove(); resolve(dataUrl); return; }
+      const img = holder.querySelector('img');
+      if (!img) { holder.remove(); reject(new Error('QR code could not be created. Refresh the page and try again.')); return; }
+      const finish = () => {
+        try { const c = document.createElement('canvas'); c.width = 160; c.height = 160; c.getContext('2d').drawImage(img, 0, 0, 160, 160); const dataUrl = c.toDataURL('image/png'); holder.remove(); resolve(dataUrl); }
+        catch (e) { holder.remove(); reject(new Error('Could not prepare the QR image. Please refresh and try again.')); }
+      };
+      if (img.complete) finish(); else { img.onload = finish; img.onerror = () => { holder.remove(); reject(new Error('Could not create the QR image.')); }; }
+    } catch (e) { holder.remove(); reject(e); }
+  });
+}
+
+function createCertificateId() {
+
+
+
+  const uuid = (window.crypto && typeof window.crypto.randomUUID === 'function')
+    ? window.crypto.randomUUID()
+    : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+  return 'SC-' + uuid.toUpperCase();
+
+
+
+}
+
+
+
+
+
+
+
+function ensureCertificateIds() {
+
+
+
+  records.forEach(record => {
+
+
+
+    if (!record.certificateId) {
+
+
+
+      record.certificateId = createCertificateId();
+
+
+
+    }
+
+
+
+  });
+
+
+
+}
+
+
+
+function rowIssues(r, idx) {
+
+
+
+  const issues = [];
+
+
+
+
+
+
+
+  const name = (r.name || '').trim();
+
+
+
+  const email = (r.email || '').trim();
+
+
+
+  const nameKey = name.toLowerCase();
+
+
+
+  const emailKey = email.toLowerCase();
+
+
+
+
+
+
+
+  if (!name) {
+
+
+
+    issues.push('Missing name');
+
+
+
+  }
+
+
+
+
+
+
+
+  if (
+
+
+
+    nameKey &&
+
+
+
+    records.findIndex(x => (x.name || '').trim().toLowerCase() === nameKey) !== idx
+
+
+
+  ) {
+
+
+
+    issues.push('Duplicate name');
+
+
+
+  }
+
+
+
+
+
+
+
+  if (email) {
+
+
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+
+
+
+
+
+    if (!emailPattern.test(email)) {
+
+
+
+      issues.push('Invalid email');
+
+
+
+    }
+
+
+
+
+
+
+
+    if (
+
+
+
+      records.findIndex(x => (x.email || '').trim().toLowerCase() === emailKey) !== idx
+
+
+
+    ) {
+
+
+
+      issues.push('Duplicate email');
+
+
+
+    }
+
+
+
+  }
+
+
+
+
+
+
+
+  return issues;
+
+
+
+}
+
+
+
+
+
+
+
+function render(){
+
+
+
+ ensureCertificateIds(); const good=records.filter((r,i)=>rowIssues(r,i).length===0);
+
+
+
+ const issueCount=records.length-good.length;
+
+
+
+ $('count').textContent=records.length;$('valid').textContent=good.length;$('issues').textContent=issueCount;
+
+
+
+ $('batchStatus').textContent=records.length ? `${good.length} ready · ${issueCount} need review` : 'No batch loaded';
+
+
+
+ $('batchStatus').className='pill'+(issueCount?' warn':'');
+
+
+
+ const query=($('searchRecords')?.value||'').toLowerCase();
+
+
+
+ const filtered=records.map((r,i)=>({r,i,issues:rowIssues(r,i)})).filter(x=>(x.r.name+' '+x.r.email).toLowerCase().includes(query));
+
+
+
+ const tb=$('tbody');tb.innerHTML='';
+
+
+
+ if(!records.length){tb.innerHTML='<tr><td colspan="3" class="empty">Load demo data or upload a CSV to see records.</td></tr>'}
+
+
+
+ else if(!filtered.length){tb.innerHTML='<tr><td colspan="3" class="empty">No matching participants.</td></tr>'}
+
+
+
+ else filtered.slice(0,12).forEach(({r,i,issues})=>{
+
+
+
+  const tr=document.createElement('tr');
+
+
+
+  const status=issues.length?issues.join(', '):'Ready to generate';
+
+
+
+  const color=issues.length?'#ffc65c':'#6be6a1';
+
+
+
+  tr.innerHTML=`<td>${esc(r.name||'(missing name)')}</td><td>${esc(r.email||'—')}</td><td style="color:${color}">${esc(status)}</td>`;
+
+
+
+  tr.style.cursor='pointer';tr.title='Click to preview this participant';tr.addEventListener('click',()=>{previewIndex=i;updatePreview()});
+
+
+
+  tb.appendChild(tr)
+
+
+
+ });
+
+
+
+ if(filtered.length>12){const tr=document.createElement('tr');tr.innerHTML=`<td colspan="3" style="color:#aab7d2">Showing 12 of ${filtered.length} matching records</td>`;tb.appendChild(tr)}
+
+
+
+ if(records.length && previewIndex>=records.length)previewIndex=0;
+
+
+
+ updatePreview();
+
+
+
+}
+
+
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+
+
+function updatePreview(){
+
+
+
+ const award=$('award').value;
+
+
+
+ $('previewAward').textContent=award.toUpperCase().replace('CERTIFICATE OF ','');
+
+
+
+ const current=records[previewIndex] || {name:'Alex Morgan',email:''};
+
+
+
+ $('previewName').textContent=current.name||'Participant Name';
+
+
+
+ $('previewEvent').textContent=current.event||$('event').value||'Your Event Name';
+
+
+
+ $('previewDate').textContent=$('date').value||'Issue date';
+
+
+
+ $('previewSign').textContent=$('signatory').value||'Organising Committee';
+
+
+
+$('previewId').textContent = 'ID: ' + (current.certificateId || 'Pending');
+
+
+
+ $('cert').className='cert '+($('theme').value==='gold'?'goldtheme':$('theme').value==='blue'?'bluetheme':'');
+
+
+
+ const color=$('theme').value==='gold'?'#c29a42':$('theme').value==='blue'?'#3b72b8':'#30a997';
+
+
+
+ $('cert').style.setProperty('--teal',color);
+
+
+
+}
+
+
+
+['event','date','award','theme','signatory'].forEach(id=>$(id).addEventListener('input',updatePreview));
+$('event').addEventListener('input',()=>{const el=$('sidebarEvent');if(el)el.textContent=$('event').value||'Untitled event'});
+document.querySelectorAll('.sc-nav a').forEach(a=>a.addEventListener('click',()=>{document.querySelectorAll('.sc-nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active')}));
+
+
+
+$('csv').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{records=parseCSV(await f.text());render();$('message').textContent=records.length?`Loaded ${records.length} row(s) from ${f.name}. Check any missing names before generation.`:'No participant rows found. Check that your CSV has a header row including name.'}catch(err){$('message').textContent='Could not read the file. Please use a valid CSV.'}});
+
+
+
+function demo(){previewIndex=0;records=[{name:'Alex Morgan',email:'alex@example.com'},{name:'Samira Khan',email:'samira@example.com'},{name:'Rohan Patel',email:'rohan@example.com'},{name:'Taylor Chen',email:'taylor@example.com'}];render();$('message').textContent='Demo data loaded. Select a theme, then generate the sample PDF.'}
+
+
+
+$('loadSample').addEventListener('click',demo);
+
+
+
+$('addParticipant').addEventListener('click',()=>{
+
+
+
+ const name=$('manualName').value.trim(), email=$('manualEmail').value.trim();
+
+
+
+ if(!name){$('message').textContent='Enter a participant name before adding.';return}
+
+
+
+ records.push({name,email,event:$('event').value,award:''});
+
+
+
+ $('manualName').value='';$('manualEmail').value='';previewIndex=records.length-1;render();
+
+
+
+ $('message').textContent=`Added ${name}. Check the validation status before generating certificates.`;
+
+
+
+});
+
+
+
+$('searchRecords').addEventListener('input',render);
+
+
+
+$('prevPerson').addEventListener('click',()=>{if(records.length){previewIndex=(previewIndex-1+records.length)%records.length;updatePreview()}});
+
+
+
+$('nextPerson').addEventListener('click',()=>{if(records.length){previewIndex=(previewIndex+1)%records.length;updatePreview()}});
+
+
+
+$('exportIssues').addEventListener('click',()=>{
+
+
+
+ const issues=records.map((r,i)=>({r,issues:rowIssues(r,i)})).filter(x=>x.issues.length);
+
+
+
+ const rows=[['name','email','issues'],...issues.map(x=>[x.r.name,x.r.email,x.issues.join('; ')])];
+
+
+
+ const csv=rows.map(row=>row.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+
+
+
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');
+
+
+
+ a.href=URL.createObjectURL(blob);a.download='smartcert_validation_report.csv';a.click();URL.revokeObjectURL(a.href);
+
+
+
+ $('message').textContent=issues.length?`Exported ${issues.length} record(s) needing review.`:'No validation issues found; exported an empty report with headers.';
+
+
+
+});
+
+
+
+
+
+
+
+$('sampleBtn').addEventListener('click',()=>{const blob=new Blob(['name,email,event,award\nAlex Morgan,alex@example.com,Innovation Workshop,Participant\nSamira Khan,samira@example.com,Innovation Workshop,Participant\nRohan Patel,rohan@example.com,Innovation Workshop,Participant\n'],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='smartcert_sample.csv';a.click();URL.revokeObjectURL(a.href)});
+
+
+
+$('clear').addEventListener('click',()=>{records=[];$('csv').value='';render();$('message').textContent='Reset complete. Load demo data or upload a CSV.'});
+
+
+
+$('generate').addEventListener('click', async ()=>{
+
+
+
+ const valid=records.filter((r,i)=>rowIssues(r,i).length===0);
+
+
+
+ if(!valid.length){$('message').textContent='No valid records are ready. Add names and resolve duplicate names/emails before generating certificates.';return}
+
+
+
+ if(!window.jspdf){$('message').textContent='PDF library did not load. Check your internet connection and refresh the page.';return}
+
+
+
+ try {
+
+ const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+
+
+
+ const theme=$('theme').value, accent=theme==='gold'?[194,154,66]:theme==='blue'?[59,114,184]:[48,169,151];
+
+
+
+ const event=$('event').value||'Event';const date=$('date').value||today.toLocaleDateString();const sign=$('signatory').value||'Organising Committee';const award=$('award').value;
+
+
+
+ ensureCertificateIds();
+
+ for (let i = 0; i < valid.length; i++) {
+
+  const r = valid[i];
+
+  if(i)doc.addPage();
+
+
+
+  doc.setFillColor(249,248,242);doc.rect(0,0,297,210,'F');
+
+
+
+  doc.setDrawColor(...accent);doc.setLineWidth(1.2);doc.rect(8,8,281,194);
+
+
+
+  doc.setLineWidth(.35);doc.rect(13,13,271,184);
+
+
+
+  doc.setTextColor(...accent);doc.setFont('helvetica','bold');doc.setFontSize(13);doc.text('SMARTCERT  /  DIGITAL RECOGNITION',148.5,35,{align:'center'});
+
+
+
+  doc.setTextColor(24,36,59);doc.setFont('times','normal');doc.setFontSize(34);doc.text(award.toUpperCase(),148.5,70,{align:'center'});
+
+
+
+  doc.setTextColor(100,111,132);doc.setFont('times','italic');doc.setFontSize(16);doc.text('This certificate is proudly presented to',148.5,91,{align:'center'});
+
+
+
+  doc.setTextColor(24,36,59);doc.setFont('times','bold');doc.setFontSize(30);doc.text(r.name,148.5,113,{align:'center',maxWidth:240});
+
+
+
+  doc.setDrawColor(183,195,195);doc.line(55,119,242,119);
+
+
+
+  doc.setFont('helvetica','normal');doc.setFontSize(14);doc.setTextColor(65,78,101);
+
+
+
+  const desc=`in recognition of participation in ${r.event||event}${r.award?` — ${r.award}`:''}.`;
+
+
+
+  const lines=doc.splitTextToSize(desc,220);doc.text(lines,148.5,133,{align:'center'});
+
+
+
+  doc.setDrawColor(...accent);doc.setLineWidth(1);doc.circle(148.5,157,7);
+
+
+
+  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(...accent);doc.text('✓',148.5,159.5,{align:'center'});
+
+
+
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(83,96,118);
+
+
+
+  doc.text(date,38,180);
+
+  doc.text(`Certificate ID: ${r.certificateId}`,148.5,180,{align:'center'});
+
+  doc.text(sign,259,180,{align:'right'});
+
+  const qrData = await makeQrDataUrl(`SmartCert Certificate ID: ${r.certificateId}`);
+  doc.addImage(qrData, 'PNG', 263, 145, 18, 18);
+
+
+
+ }
+
+ doc.save('SmartCert_Certificates.pdf');
+
+
+
+ $('message').textContent=`Generated ${valid.length} certificate page(s) with unique IDs and QR codes in SmartCert_Certificates.pdf. QR codes contain certificate IDs only; online verification is not enabled yet.`;
+
+ } catch (err) {
+
+   console.error(err);
+
+   $('message').textContent = err.message || 'Certificate generation failed. Check the browser console and try again.';
+
+ }
+
+});
+
+
+
+render();
+
+
+
+</script>
+
+
+
+</body></html>
