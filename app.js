@@ -32,7 +32,44 @@
     {id:id(),name:"Daniel Kim",email:"daniel@example.com",event:"Workshop",award:"",certificateId:id()}
   ]; addActivity("Demo participants loaded","3 sample participants are ready to review.");saveState()}
   function addActivity(title,detail){state.activity.unshift({title,detail,date:new Date().toLocaleString()});state.activity=state.activity.slice(0,12)}
-  function issueList(p){const issues=[];if(!p.name?.trim())issues.push("Missing name");const names=state.participants.filter(x=>x.id!==p.id&&x.name?.trim().toLowerCase()===p.name?.trim().toLowerCase());if(p.name?.trim()&&names.length)issues.push("Duplicate name");if(p.email?.trim()){if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email.trim()))issues.push("Invalid email");if(state.participants.some(x=>x.id!==p.id&&x.email?.trim().toLowerCase()===p.email.trim().toLowerCase()))issues.push("Duplicate email")}return issues}
+  function issueList(p) {
+  const issues = [];
+
+  if (!p.name?.trim()) {
+    issues.push("Missing name");
+  }
+
+  const nameKey = (p.name || "").trim().toLowerCase();
+  const emailKey = (p.email || "").trim().toLowerCase();
+
+  const names = state.participants.filter(
+    x =>
+      x.id !== p.id &&
+      (x.name || "").trim().toLowerCase() === nameKey
+  );
+
+  if (nameKey && names.length) {
+    issues.push("Duplicate name");
+  }
+
+  if (emailKey) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailKey)) {
+      issues.push("Invalid email");
+    }
+
+    if (
+      state.participants.some(
+        x =>
+          x.id !== p.id &&
+          (x.email || "").trim().toLowerCase() === emailKey
+      )
+    ) {
+      issues.push("Duplicate email");
+    }
+  }
+
+  return issues;
+}
   function validPeople(){return state.participants.filter(p=>issueList(p).length===0)}
   function pill(text,kind=""){return `<span class="status-pill ${kind}">${esc(text)}</span>`}
   function heading(title,desc,action=""){return `<div class="page-heading"><div><div class="eyebrow">SMARTCERT WORKSPACE</div><h1>${title}</h1><p>${desc}</p></div>${action}</div>`}
